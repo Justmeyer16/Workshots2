@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#F97316"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="WorkShots"/>
+<link rel="manifest" href="./manifest.json"/>
+<link rel="icon" href="./icon.svg"/>
+<title>WorkShots</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800;9..40,900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#0d0d0d;font-family:'DM Sans',sans-serif;display:flex;justify-content:center;min-height:100vh;min-height:100dvh;}
+#app{width:100%;max-width:480px;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+input,select,textarea,button{font-family:'DM Sans',sans-serif;}
+::-webkit-scrollbar{display:none;}
+.page{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.hidden{display:none!important;}
+/* NAV */
+.nav{flex-shrink:0;background:#111;border-top:1px solid #1e1e1e;display:flex;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{flex:1;background:none;border:none;padding:10px 0 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.nav-icon{font-size:22px;line-height:1;}
+.nav-label{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;transition:color 0.15s;}
+.nav-dot{width:18px;height:2px;border-radius:2px;margin-top:2px;transition:opacity 0.15s;}
+/* INPUTS */
+.inp{width:100%;background:#111;border:1px solid #2a2a2a;border-radius:10px;padding:11px 13px;color:#fff;font-size:15px;outline:none;transition:border-color 0.2s;}
+.inp:focus{border-color:#F97316;}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;}
+/* TAGS */
+.tag{background:#F97316;color:#fff;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+/* CARDS */
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.photo-card{background:#161616;border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.5);transition:transform 0.15s,box-shadow 0.15s;position:relative;}
+.photo-card:active{transform:scale(0.97);}
+.photo-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;}
+.photo-info{padding:9px 11px 11px;}
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(12px);}
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:500;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(12px);}
+.modal-box{background:#161616;border-radius:22px;overflow:hidden;width:100%;max-width:430px;box-shadow:0 24px 60px rgba(0,0,0,0.9);max-height:90vh;overflow-y:auto;}
+.sheet-box{background:#161616;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:22px;max-height:92vh;overflow-y:auto;}
+/* BUTTONS */
+.btn-orange{background:#F97316;color:#fff;border:none;border-radius:13px;padding:14px 0;font-weight:800;font-size:15px;cursor:pointer;width:100%;box-shadow:0 4px 16px rgba(249,115,22,0.35);transition:opacity 0.15s,transform 0.1s;}
+.btn-orange:active{opacity:0.85;transform:scale(0.98);}
+.btn-orange:disabled{background:#2a2a2a;color:#555;box-shadow:none;cursor:not-allowed;}
+.btn-ghost{background:#252525;color:#888;border:none;border-radius:12px;padding:13px 16px;cursor:pointer;font-size:14px;transition:background 0.15s;}
+.btn-ghost:active{background:#1e1e1e;}
+/* PAY BUTTONS */
+.pay-btn{display:flex;align-items:center;gap:16px;border-radius:18px;padding:20px 22px;cursor:pointer;text-decoration:none;transition:transform 0.15s,box-shadow 0.15s;margin-bottom:13px;}
+.pay-btn:active{transform:scale(0.98);}
+.pay-icon-box{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;}
+/* PROFILE */
+.profile-hero{background:linear-gradient(135deg,#1a1a1a 0%,#1e1a14 100%);border-radius:22px;padding:26px 22px;margin-bottom:13px;border:1px solid #252525;position:relative;overflow:hidden;}
+.avatar{width:64px;height:64px;border-radius:20px;background:#F97316;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;margin-bottom:13px;font-family:'DM Sans',sans-serif;}
+.info-card{background:#161616;border-radius:18px;padding:19px;margin-bottom:13px;}
+.info-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:11px;}
+.info-row:last-child{margin-bottom:0;}
+/* FILTER PILLS */
+.filter-scroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.filter-pill{flex-shrink:0;border:none;border-radius:20px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;transition:background 0.15s,color 0.15s;}
+/* STATS BAR */
+.stats-bar{background:#111;border-top:1px solid #1e1e1e;padding:10px 20px;display:flex;justify-content:space-around;flex-shrink:0;}
+.stat-val{color:#F97316;font-weight:900;font-size:19px;text-align:center;}
+.stat-lbl{color:#444;font-size:9px;text-transform:uppercase;letter-spacing:1px;text-align:center;}
+/* EMPTY STATE */
+.empty-drop{border:2px dashed #2a2a2a;border-radius:18px;padding:56px 24px;text-align:center;cursor:pointer;margin-top:16px;transition:border-color 0.2s;}
+.empty-drop:active{border-color:#F97316;}
+/* SECTION LABEL */
+.sec-lbl{color:#F97316;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:11px;display:block;}
+.field-lbl{color:#666;font-size:11px;font-weight:700;display:block;margin-bottom:5px;letter-spacing:0.8px;}
+/* INSTALL BANNER */
+#install-banner{background:linear-gradient(90deg,#1a1a1a,#1e1a14);border-bottom:1px solid #2a2a2a;padding:11px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- INSTALL BANNER (shown when installable) -->
+  <div id="install-banner" class="hidden">
+    <span style="font-size:20px">📲</span>
+    <div style="flex:1">
+      <div style="color:#fff;font-weight:700;font-size:13px;">Install WorkShots</div>
+      <div style="color:#666;font-size:11px;">Add to home screen for the full app experience</div>
+    </div>
+    <button onclick="installApp()" style="background:#F97316;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-weight:700;font-size:12px;cursor:pointer;flex-shrink:0;">Install</button>
+    <button onclick="document.getElementById('install-banner').classList.add('hidden')" style="background:none;border:none;color:#555;cursor:pointer;font-size:18px;padding:0 4px;">✕</button>
+  </div>
+
+  <!-- PAGES -->
+  <div id="page-photos" class="page"></div>
+  <div id="page-pay" class="page hidden"></div>
+  <div id="page-profile" class="page hidden"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <button class="nav-btn" onclick="switchTab('photos')">
+      <span class="nav-icon">📸</span>
+      <span class="nav-label" id="nl-photos" style="color:#F97316;">Photos</span>
+      <div class="nav-dot" id="nd-photos" style="background:#F97316;opacity:1;"></div>
+    </button>
+    <button class="nav-btn" onclick="switchTab('pay')">
+      <span class="nav-icon">💳</span>
+      <span class="nav-label" id="nl-pay" style="color:#444;">Pay Me</span>
+      <div class="nav-dot" id="nd-pay" style="background:#F97316;opacity:0;"></div>
+    </button>
+    <button class="nav-btn" onclick="switchTab('profile')">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label" id="nl-profile" style="color:#444;">Profile</span>
+      <div class="nav-dot" id="nd-profile" style="background:#F97316;opacity:0;"></div>
+    </button>
+  </nav>
+</div>
+
+<!-- MODALS (rendered here, moved by JS) -->
+<div id="photo-modal" class="overlay hidden" onclick="closePhotoModal(event)"></div>
+<div id="upload-sheet" class="sheet-overlay hidden" onclick="closeUploadSheet(event)"></div>
+<div id="profile-edit-sheet" class="sheet-overlay hidden" onclick="closeProfileSheet(event)"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const JOB_TYPES = ["All","Electrical","Plumbing","HVAC","Roofing","Carpentry","Concrete","Landscaping","Painting","General"];
+const PAY_OPTIONS = [
+  {key:"venmo",   label:"Venmo",      color:"#3D95CE", icon:"V",  placeholder:"@yourhandle",          getUrl:h=>`https://venmo.com/${h.replace("@","")}`},
+  {key:"paypal",  label:"PayPal",     color:"#003087", icon:"P",  placeholder:"paypal.me/username",    getUrl:h=>`https://paypal.me/${h.replace(/.*paypal\.me\//i,"")}`},
+  {key:"cashapp", label:"Cash App",   color:"#00C244", icon:"$",  placeholder:"$yourcashtag",          getUrl:h=>`https://cash.app/${h.startsWith("$")?h:"$"+h}`},
+  {key:"visa",    label:"Visa/Card",  color:"#1A1F71", icon:"💳", placeholder:"Payment link or Zelle", getUrl:h=>h},
+];
+
+let state = {
+  tab: "photos",
+  photos: [],
+  filterJob: "All",
+  filterSearch: "",
+  profile: {
+    name:"", title:"Licensed Contractor",
+    address:"", phone:"", email:"", website:"", summary:"",
+    venmo:"", paypal:"", cashapp:"", visa:""
+  },
+  pendingPhoto: null, // {url, file}
+  uploadForm: {location:"", jobType:"Electrical", notes:"", timestamp: nowLocal()},
+  selectedPhoto: null,
+};
+
+// Load from localStorage
+try {
+  const saved = localStorage.getItem("workshots_state");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    // photos stored as {id, location, jobType, notes, timestamp, dataUrl}
+    state.photos = parsed.photos || [];
+    state.profile = {...state.profile, ...parsed.profile};
+  }
+} catch(e){}
+
+function saveState() {
+  try {
+    localStorage.setItem("workshots_state", JSON.stringify({
+      photos: state.photos,
+      profile: state.profile
+    }));
+  } catch(e) {
+    alert("Storage full — try deleting some photos.");
+  }
+}
+
+function nowLocal() {
+  const d = new Date();
+  return d.toISOString().slice(0,16);
+}
+
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+}
+function fmtTime(iso) {
+  return new Date(iso).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+}
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+// ═══════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════
+function switchTab(tab) {
+  state.tab = tab;
+  ["photos","pay","profile"].forEach(t => {
+    document.getElementById(`page-${t}`).classList.toggle("hidden", t !== tab);
+    document.getElementById(`nl-${t}`).style.color = t === tab ? "#F97316" : "#444";
+    document.getElementById(`nd-${t}`).style.opacity = t === tab ? "1" : "0";
+  });
+  renderCurrentPage();
+}
+
+function renderCurrentPage() {
+  if (state.tab === "photos") renderPhotosPage();
+  if (state.tab === "pay") renderPayPage();
+  if (state.tab === "profile") renderProfilePage();
+}
+
+// ═══════════════════════════════════════════════
+// PHOTOS PAGE
+// ═══════════════════════════════════════════════
+function renderPhotosPage() {
+  const filtered = state.photos.filter(p => {
+    const mj = state.filterJob === "All" || p.jobType === state.filterJob;
+    const ms = !state.filterSearch || p.location.toLowerCase().includes(state.filterSearch.toLowerCase()) || p.jobType.toLowerCase().includes(state.filterSearch.toLowerCase());
+    return mj && ms;
+  });
+
+  const pills = JOB_TYPES.map(jt => `
+    <button class="filter-pill" style="background:${state.filterJob===jt?"#F97316":"#1c1c1c"};color:${state.filterJob===jt?"#fff":"#666"};" onclick="setFilterJob('${jt}')">${jt}</button>
+  `).join("");
+
+  const photoCards = filtered.map(p => `
+    <div class="photo-card" onclick="openPhoto('${p.id}')">
+      <img class="photo-thumb" src="${p.dataUrl}" alt="${esc(p.location)}" loading="lazy"/>
+      <span class="tag" style="position:absolute;top:7px;right:7px;">${esc(p.jobType)}</span>
+      <div class="photo-info">
+        <div style="color:#fff;font-weight:700;font-size:12px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📍 ${esc(p.location)}</div>
+        <div style="color:#666;font-size:10px;">${fmtDate(p.timestamp)} · ${fmtTime(p.timestamp)}</div>
+      </div>
+    </div>
+  `).join("");
+
+  const statsBar = state.photos.length > 0 ? `
+    <div class="stats-bar">
+      <div><div class="stat-val">${state.photos.length}</div><div class="stat-lbl">Total</div></div>
+      <div><div class="stat-val">${filtered.length}</div><div class="stat-lbl">Shown</div></div>
+      <div><div class="stat-val">${new Set(state.photos.map(p=>p.jobType)).size}</div><div class="stat-lbl">Job Types</div></div>
+    </div>
+  ` : "";
+
+  const gridOrEmpty = state.photos.length === 0
+    ? `<div class="empty-drop" onclick="triggerFileInput()">
+        <div style="font-size:48px;margin-bottom:12px;">📸</div>
+        <div style="color:#fff;font-weight:800;font-size:18px;margin-bottom:6px;">Upload your first photo</div>
+        <div style="color:#444;font-size:13px;">Tap to choose from your gallery</div>
+       </div>`
+    : filtered.length === 0
+    ? `<div style="text-align:center;padding:48px 0;color:#444;">No photos match your filters</div>`
+    : `<div class="photo-grid">${photoCards}</div>`;
+
+  document.getElementById("page-photos").innerHTML = `
+    <div style="padding:20px 16px 0;background:#0d0d0d;position:sticky;top:0;z-index:100;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+          <div style="color:#F97316;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">WorkShots</div>
+          <div style="color:#fff;font-size:23px;font-weight:900;line-height:1;">My Photos</div>
+        </div>
+        <button onclick="triggerFileInput()" style="background:#F97316;color:#fff;border:none;border-radius:14px;padding:11px 20px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(249,115,22,0.4);">+ Upload</button>
+      </div>
+      <input class="inp" placeholder="🔍  Search location or job type..." value="${esc(state.filterSearch)}"
+        oninput="state.filterSearch=this.value;renderPhotosPage();" style="margin-bottom:12px;"/>
+      <div class="filter-scroll">${pills}</div>
+      <div style="height:10px;"></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:0 16px 16px;">
+      ${gridOrEmpty}
+    </div>
+    ${statsBar}
+    <input type="file" id="file-input" accept="image/*" multiple style="display:none;" onchange="handleFileInput(event)"/>
+  `;
+}
+
+function setFilterJob(jt) {
+  state.filterJob = jt;
+  renderPhotosPage();
+}
+
+function triggerFileInput() {
+  document.getElementById("file-input").click();
+}
+
+function handleFileInput(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    state.pendingPhoto = {dataUrl: ev.target.result};
+    state.uploadForm = {location:"", jobType:"Electrical", notes:"", timestamp: nowLocal()};
+    openUploadSheet();
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+}
+
+function openPhoto(id) {
+  state.selectedPhoto = state.photos.find(p => p.id === id);
+  renderPhotoModal();
+  document.getElementById("photo-modal").classList.remove("hidden");
+}
+
+function closePhotoModal(e) {
+  if (e.target === document.getElementById("photo-modal")) {
+    document.getElementById("photo-modal").classList.add("hidden");
+    state.selectedPhoto = null;
+  }
+}
+
+function renderPhotoModal() {
+  const p = state.selectedPhoto;
+  if (!p) return;
+  document.getElementById("photo-modal").innerHTML = `
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div style="position:relative;">
+        <img src="${p.dataUrl}" style="width:100%;max-height:320px;object-fit:cover;display:block;"/>
+        <button onclick="document.getElementById('photo-modal').classList.add('hidden')" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+      <div style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:10px;">
+          <div>
+            <div style="color:#fff;font-weight:800;font-size:16px;margin-bottom:4px;">📍 ${esc(p.location)}</div>
+            <div style="color:#666;font-size:12px;">${fmtDate(p.timestamp)} · ${fmtTime(p.timestamp)}</div>
+          </div>
+          <span class="tag" style="flex-shrink:0;">${esc(p.jobType)}</span>
+        </div>
+        ${p.notes ? `<div style="color:#999;font-size:13px;margin-bottom:16px;line-height:1.6;">${esc(p.notes)}</div>` : ""}
+        <div style="display:flex;gap:10px;">
+          <button class="btn-orange" style="flex:1;" onclick="sharePhoto()">⬆ Share Photo</button>
+          <button class="btn-ghost" onclick="deletePhoto('${p.id}')">🗑</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function sharePhoto() {
+  const p = state.selectedPhoto;
+  if (!p) return;
+  const text = `📍 ${p.location}\n📅 ${fmtDate(p.timestamp)} ${fmtTime(p.timestamp)}\nJob: ${p.jobType}${p.notes?"\n"+p.notes:""}`;
+  try {
+    // Convert dataUrl to blob for sharing
+    const res = await fetch(p.dataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], "workshot.jpg", {type:"image/jpeg"});
+    if (navigator.canShare && navigator.canShare({files:[file]})) {
+      await navigator.share({title:"WorkShots Photo", text, files:[file]});
+      return;
+    }
+  } catch(e){}
+  // Fallback: copy text
+  try { await navigator.clipboard.writeText(text); alert("📋 Photo details copied to clipboard!"); } catch(e){}
+}
+
+function deletePhoto(id) {
+  if (!confirm("Delete this photo?")) return;
+  state.photos = state.photos.filter(p => p.id !== id);
+  saveState();
+  document.getElementById("photo-modal").classList.add("hidden");
+  state.selectedPhoto = null;
+  renderPhotosPage();
+}
+
+// ═══════════════════════════════════════════════
+// UPLOAD SHEET
+// ═══════════════════════════════════════════════
+function openUploadSheet() {
+  renderUploadSheet();
+  document.getElementById("upload-sheet").classList.remove("hidden");
+}
+
+function closeUploadSheet(e) {
+  if (e.target === document.getElementById("upload-sheet") || e === "close") {
+    document.getElementById("upload-sheet").classList.add("hidden");
+    state.pendingPhoto = null;
+  }
+}
+
+function renderUploadSheet() {
+  const jobOpts = JOB_TYPES.slice(1).map(jt => `<option value="${jt}" ${state.uploadForm.jobType===jt?"selected":""}>${jt}</option>`).join("");
+  document.getElementById("upload-sheet").innerHTML = `
+    <div class="sheet-box" onclick="event.stopPropagation()">
+      <div style="color:#fff;font-weight:800;font-size:18px;margin-bottom:16px;">📸 Photo Details</div>
+      ${state.pendingPhoto ? `<img src="${state.pendingPhoto.dataUrl}" style="width:100%;height:180px;object-fit:cover;border-radius:14px;margin-bottom:16px;display:block;"/>` : ""}
+      <div style="margin-bottom:13px;">
+        <label class="field-lbl">LOCATION *</label>
+        <input class="inp" id="uf-location" placeholder="e.g. 123 Main St, Chicago" value="${esc(state.uploadForm.location)}" oninput="state.uploadForm.location=this.value;updateSaveBtn()"/>
+      </div>
+      <div style="margin-bottom:13px;">
+        <label class="field-lbl">JOB TYPE</label>
+        <select class="inp" id="uf-jobtype" onchange="state.uploadForm.jobType=this.value">${jobOpts}</select>
+      </div>
+      <div style="margin-bottom:13px;">
+        <label class="field-lbl">DATE & TIME</label>
+        <input class="inp" type="datetime-local" id="uf-time" value="${state.uploadForm.timestamp}" onchange="state.uploadForm.timestamp=this.value"/>
+      </div>
+      <div style="margin-bottom:18px;">
+        <label class="field-lbl">NOTES (optional)</label>
+        <textarea class="inp" id="uf-notes" placeholder="Any notes about this job..." style="height:72px;resize:none;" oninput="state.uploadForm.notes=this.value">${esc(state.uploadForm.notes)}</textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-orange" id="save-photo-btn" onclick="savePhoto()" ${!state.uploadForm.location?"disabled":""}>Save Photo</button>
+        <button class="btn-ghost" onclick="closeUploadSheet('close')">Cancel</button>
+      </div>
+    </div>
+  `;
+}
+
+function updateSaveBtn() {
+  const btn = document.getElementById("save-photo-btn");
+  if (btn) btn.disabled = !state.uploadForm.location.trim();
+}
+
+function savePhoto() {
+  if (!state.pendingPhoto || !state.uploadForm.location.trim()) return;
+  const photo = {
+    id: Date.now().toString(),
+    dataUrl: state.pendingPhoto.dataUrl,
+    location: state.uploadForm.location.trim(),
+    jobType: state.uploadForm.jobType,
+    notes: state.uploadForm.notes.trim(),
+    timestamp: new Date(state.uploadForm.timestamp).toISOString(),
+  };
+  state.photos.unshift(photo);
+  saveState();
+  document.getElementById("upload-sheet").classList.add("hidden");
+  state.pendingPhoto = null;
+  renderPhotosPage();
+}
+
+// ═══════════════════════════════════════════════
+// PAY PAGE
+// ═══════════════════════════════════════════════
+function renderPayPage() {
+  const active = PAY_OPTIONS.filter(o => state.profile[o.key] && state.profile[o.key].trim());
+  const firstName = (state.profile.name||"me").split(" ")[0];
+
+  const payBtns = active.map(opt => `
+    <a class="pay-btn" href="${esc(opt.getUrl(state.profile[opt.key]))}" target="_blank" rel="noopener" style="background:${opt.color};box-shadow:0 6px 20px ${opt.color}55;">
+      <div class="pay-icon-box">${opt.icon}</div>
+      <div style="flex:1;">
+        <div style="color:#fff;font-weight:800;font-size:16px;">${opt.label}</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:2px;">${esc(state.profile[opt.key])}</div>
+      </div>
+      <div style="color:rgba(255,255,255,0.5);font-size:22px;">→</div>
+    </a>
+  `).join("");
+
+  const emptyState = `
+    <div style="border:2px dashed #2a2a2a;border-radius:18px;padding:52px 24px;text-align:center;">
+      <div style="font-size:44px;margin-bottom:12px;">💳</div>
+      <div style="color:#555;font-size:14px;line-height:1.6;">No payment methods added yet.<br/>Go to <strong style="color:#F97316;">Profile → Edit</strong> to add them.</div>
+    </div>
+  `;
+
+  document.getElementById("page-pay").innerHTML = `
+    <div style="flex:1;overflow-y:auto;padding:24px 16px 24px;">
+      <div style="color:#F97316;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">WorkShots</div>
+      <div style="color:#fff;font-size:23px;font-weight:900;margin-bottom:4px;">Get Paid</div>
+      <div style="color:#555;font-size:13px;margin-bottom:26px;">Send payment directly to ${esc(firstName)}</div>
+      ${active.length ? payBtns : emptyState}
+      <div style="background:#161616;border-radius:18px;padding:20px;margin-top:20px;">
+        <div style="color:#fff;font-weight:800;font-size:14px;margin-bottom:8px;">💡 How it works</div>
+        <div style="color:#666;font-size:13px;line-height:1.7;">Tapping a button opens the payment app directly. Share this screen with your client so they can pay you instantly — no cash or checks needed.</div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// PROFILE PAGE
+// ═══════════════════════════════════════════════
+function renderProfilePage() {
+  const p = state.profile;
+  const initial = (p.name||"?").charAt(0).toUpperCase();
+
+  const contactRows = [
+    p.address ? ["📍", p.address] : null,
+    p.phone   ? ["📞", p.phone]   : null,
+    p.email   ? ["✉️", p.email]   : null,
+    p.website ? ["🌐", p.website] : null,
+  ].filter(Boolean).map(([icon,val]) => `
+    <div class="info-row">
+      <span style="font-size:16px;width:22px;text-align:center;flex-shrink:0;">${icon}</span>
+      <span style="color:#ccc;font-size:13px;line-height:1.5;">${esc(val)}</span>
+    </div>
+  `).join("");
+
+  const payBadges = PAY_OPTIONS.map(opt => `
+    <div style="background:${p[opt.key]?opt.color:"#252525"};color:${p[opt.key]?"#fff":"#444"};border-radius:10px;padding:6px 13px;font-size:12px;font-weight:700;">
+      ${opt.label} ${p[opt.key]?"✓":"—"}
+    </div>
+  `).join("");
+
+  document.getElementById("page-profile").innerHTML = `
+    <div style="flex:1;overflow-y:auto;padding:24px 16px 24px;">
+      <div class="profile-hero">
+        <div style="position:absolute;top:-24px;right:-24px;width:110px;height:110px;border-radius:50%;background:rgba(249,115,22,0.07);"></div>
+        <div class="avatar">${initial}</div>
+        <div style="color:#fff;font-weight:900;font-size:22px;margin-bottom:3px;">${esc(p.name||"Your Name")}</div>
+        <div style="color:#F97316;font-weight:700;font-size:13px;margin-bottom:${p.summary?"10px":"0"};">${esc(p.title||"Contractor")}</div>
+        ${p.summary ? `<div style="color:#888;font-size:13px;line-height:1.6;">${esc(p.summary)}</div>` : ""}
+      </div>
+
+      ${contactRows ? `
+      <div class="info-card">
+        <span class="sec-lbl">Contact</span>
+        ${contactRows || `<div style="color:#444;font-size:13px;">No contact info yet. Tap Edit to add.</div>`}
+      </div>` : ""}
+
+      <div class="info-card">
+        <span class="sec-lbl">Payment Methods</span>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">${payBadges}</div>
+      </div>
+
+      <button class="btn-orange" onclick="openProfileEdit()">✏️ Edit Profile</button>
+    </div>
+  `;
+}
+
+function openProfileEdit() {
+  renderProfileEditSheet();
+  document.getElementById("profile-edit-sheet").classList.remove("hidden");
+}
+
+function closeProfileSheet(e) {
+  if (e.target === document.getElementById("profile-edit-sheet") || e === "close") {
+    document.getElementById("profile-edit-sheet").classList.add("hidden");
+  }
+}
+
+function renderProfileEditSheet() {
+  const p = state.profile;
+  const field = (key, label, placeholder, type="text", multiline=false) => `
+    <div style="margin-bottom:14px;">
+      <label class="field-lbl">${label}</label>
+      ${multiline
+        ? `<textarea class="inp" id="pf-${key}" placeholder="${placeholder}" style="height:88px;resize:none;" oninput="state.profile.${key}=this.value">${esc(p[key])}</textarea>`
+        : `<input class="inp" type="${type}" id="pf-${key}" placeholder="${placeholder}" value="${esc(p[key])}" oninput="state.profile.${key}=this.value"/>`
+      }
+    </div>
+  `;
+
+  document.getElementById("profile-edit-sheet").innerHTML = `
+    <div class="sheet-box" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="color:#fff;font-weight:900;font-size:20px;">Edit Profile</div>
+        <button class="btn-ghost" style="padding:8px 14px;font-size:13px;" onclick="closeProfileSheet('close')">Cancel</button>
+      </div>
+
+      <span class="sec-lbl">Contact Info</span>
+      ${field("name","FULL NAME","John Smith")}
+      ${field("title","JOB TITLE","Licensed Contractor")}
+      ${field("address","ADDRESS","123 Main St, City, ST 00000")}
+      ${field("phone","PHONE","(555) 000-0000","tel")}
+      ${field("email","EMAIL","you@example.com","email")}
+      ${field("website","WEBSITE (optional)","yourwebsite.com","url")}
+      ${field("summary","BIO / SUMMARY","Tell clients about your experience and specialty...","text",true)}
+
+      <span class="sec-lbl" style="margin-top:8px;">Payment Methods</span>
+      ${PAY_OPTIONS.map(o => field(o.key, o.label.toUpperCase(), o.placeholder)).join("")}
+
+      <button class="btn-orange" onclick="saveProfile()">Save Profile</button>
+      <div style="height:20px;"></div>
+    </div>
+  `;
+}
+
+function saveProfile() {
+  saveState();
+  document.getElementById("profile-edit-sheet").classList.add("hidden");
+  renderProfilePage();
+}
+
+// ═══════════════════════════════════════════════
+// PWA INSTALL
+// ═══════════════════════════════════════════════
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("install-banner").classList.remove("hidden");
+});
+window.addEventListener("appinstalled", () => {
+  document.getElementById("install-banner").classList.add("hidden");
+  deferredPrompt = null;
+});
+async function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const {outcome} = await deferredPrompt.userChoice;
+  if (outcome === "accepted") document.getElementById("install-banner").classList.add("hidden");
+  deferredPrompt = null;
+}
+
+// ═══════════════════════════════════════════════
+// SERVICE WORKER
+// ═══════════════════════════════════════════════
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js").catch(()=>{});
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+renderPhotosPage();
+</script>
+</body>
+</html>
